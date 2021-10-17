@@ -15,6 +15,7 @@ function ListCard(props) {
     store.history = useHistory();
     const { idNamePair, selected } = props;
 
+
     function handleLoadList(event) {
         if (!event.target.disabled) {
             let _id = event.target.id;
@@ -59,6 +60,7 @@ function ListCard(props) {
     if (store.isListNameEditActive) {
         cardStatus = true;
     }
+        
     let cardElement =
         <div
             id={idNamePair._id}

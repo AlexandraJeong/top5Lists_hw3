@@ -9,6 +9,21 @@ import { GlobalStoreContext } from '../store'
 function Top5Item(props) {
     const { store } = useContext(GlobalStoreContext);
     const [draggedTo, setDraggedTo] = useState(0);
+    const [editActive, setEditActive] = useState(false);
+    const [ text, setText ] = useState("");
+
+    function handleToggleEdit(event) {
+        event.stopPropagation();
+        toggleEdit();
+    }
+
+    function toggleEdit() {
+        let newActive = !editActive;
+        if (newActive) {
+            store.setIsItemEditActive();
+        }
+        setEditActive(newActive);
+    }
 
     function handleDragStart(event) {
         event.dataTransfer.setData("item", event.target.id);
@@ -40,13 +55,24 @@ function Top5Item(props) {
         // UPDATE THE LIST
         store.addMoveItemTransaction(sourceId, targetId);
     }
+    function handleKeyPress(event) {
+        if (event.code === "Enter") {
+            let id = event.target.id.substring("list-".length);
+            store.changeItemName(id, text);
+            toggleEdit();
+        }
+    }
+
+    function handleUpdateText(event) {
+        setText(event.target.value);
+    }
 
     let { index } = props;
     let itemClass = "top5-item";
     if (draggedTo) {
         itemClass = "top5-item-dragged-to";
     }
-    return (
+    let itemElement = (
         <div
             id={'item-' + (index + 1)}
             className={itemClass}
@@ -60,11 +86,23 @@ function Top5Item(props) {
             <input
                 type="button"
                 id={"edit-item-" + index + 1}
-                className="list-card-button"
+                className="item-edit-button"
                 value={"\u270E"}
+                onClick={handleToggleEdit}
             />
-            {props.text}
-        </div>)
+            { props.text }
+        </div >)
+    if (editActive) {
+        itemElement =
+            <input
+                id={"item-" + index+1}
+                type='text'
+                onKeyPress={handleKeyPress}
+                onChange={handleUpdateText}
+                defaultValue={props.text}
+            />;
+    }
+    return itemElement;
 }
 
 export default Top5Item;

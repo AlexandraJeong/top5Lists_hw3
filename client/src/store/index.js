@@ -17,7 +17,9 @@ export const GlobalStoreActionType = {
     CLOSE_CURRENT_LIST: "CLOSE_CURRENT_LIST",
     LOAD_ID_NAME_PAIRS: "LOAD_ID_NAME_PAIRS",
     SET_CURRENT_LIST: "SET_CURRENT_LIST",
-    SET_LIST_NAME_EDIT_ACTIVE: "SET_LIST_NAME_EDIT_ACTIVE"
+    SET_LIST_NAME_EDIT_ACTIVE: "SET_LIST_NAME_EDIT_ACTIVE",
+    SET_ITEM_EDIT_ACTIVE: "SET_ITEM_EDIT_ACTIVE",
+    ADD_LIST: "ADD_LIST"
 }
 
 // WE'LL NEED THIS TO PROCESS TRANSACTIONS
@@ -96,9 +98,52 @@ export const useGlobalStore = () => {
                     listMarkedForDeletion: null
                 });
             }
+            // START EDITING AN ITEM
+            case GlobalStoreActionType.SET_LIST_NAME_EDIT_ACTIVE: {
+                return setStore({
+                    idNamePairs: store.idNamePairs,
+                    currentList: payload,
+                    newListCounter: store.newListCounter,
+                    isListNameEditActive: false,
+                    isItemEditActive: true,
+                    listMarkedForDeletion: null
+                });
+            }
+            case GlobalStoreActionType.ADD_LIST: {
+                return setStore({
+                    idNamePairs: payload,
+                    currentList: store.currentList,
+                    newListCounter: store.newListCounter + 1,
+                    isListNameEditActive: false,
+                    isItemEditActive: false,
+                    listMarkedForDeletion: null
+                });
+            }
             default:
                 return store;
         }
+    }
+    store.addList = function () {
+        //IMPLEMENT
+        //payload = _id, items array, name, createdate, updatedate
+        async function asyncAddList() {
+            let data = ({
+                items: ["?", "?", "?", "?", "?"],
+                name: "untitled"
+            });
+            let newList=(await api.createTop5List(data)).data.top5List;
+            let response = await api.getTop5ListPairs();
+            if (response.data.success) {
+                let pairsArray = response.data.idNamePairs;
+                //console.log(newList);
+                storeReducer({
+                    type: GlobalStoreActionType.ADD_LIST,
+                    payload: pairsArray
+                });
+            }
+            store.setCurrentList(newList._id);
+        }
+        asyncAddList();
     }
     // THESE ARE THE FUNCTIONS THAT WILL UPDATE OUR STORE AND
     // DRIVE THE STATE OF THE APPLICATION. WE'LL CALL THESE IN 
@@ -136,6 +181,8 @@ export const useGlobalStore = () => {
         }
         asyncChangeListName(id);
     }
+    //store.changeItemName(){
+    //}
 
     // THIS FUNCTION PROCESSES CLOSING THE CURRENTLY LOADED LIST
     store.closeCurrentList = function () {
@@ -210,7 +257,7 @@ export const useGlobalStore = () => {
         // NOW MAKE IT OFFICIAL
         store.updateCurrentList();
     }
-    store.updateCurrentList = function() {
+    store.updateCurrentList = function () {
         async function asyncUpdateCurrentList() {
             const response = await api.updateTop5ListById(store.currentList._id, store.currentList);
             if (response.data.success) {
@@ -233,6 +280,12 @@ export const useGlobalStore = () => {
     store.setIsListNameEditActive = function () {
         storeReducer({
             type: GlobalStoreActionType.SET_LIST_NAME_EDIT_ACTIVE,
+            payload: null
+        });
+    }
+    store.setIsItemEditActive = function () {
+        storeReducer({
+            type: GlobalStoreActionType.SET_ITEM_EDIT_ACTIVE,
             payload: null
         });
     }

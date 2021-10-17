@@ -1,7 +1,7 @@
 import React, { useContext, useEffect } from 'react'
 import { useHistory } from 'react-router-dom'
 import ListCard from './ListCard.js'
-import { GlobalStoreContext } from '../store'
+import { GlobalStoreActionType, GlobalStoreContext } from '../store'
 import DeleteModal from './DeleteModal'
 /*
     This React component lists all the top5 lists in the UI.
@@ -33,7 +33,9 @@ const ListSelector = () => {
                     type="button"
                     id="add-list-button"
                     className="top5-button"
-                    value="+" />
+                    value="+" 
+                    onClick = {store.addList}
+                    />
                 Your Lists
             </div>
             <div id="list-selector-list">
