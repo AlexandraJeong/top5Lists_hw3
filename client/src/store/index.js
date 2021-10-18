@@ -2,6 +2,7 @@ import { createContext, useState } from 'react'
 import jsTPS from '../common/jsTPS'
 import api from '../api'
 import MoveItem_Transaction from '../transactions/MoveItem_Transaction'
+import ChangeItem_Transaction from '../transactions/ChangeItem_Transaction'
 export const GlobalStoreContext = createContext({});
 /*
     This is our global data store. Note that it uses the Flux design pattern,
@@ -19,7 +20,8 @@ export const GlobalStoreActionType = {
     SET_CURRENT_LIST: "SET_CURRENT_LIST",
     SET_LIST_NAME_EDIT_ACTIVE: "SET_LIST_NAME_EDIT_ACTIVE",
     SET_ITEM_EDIT_ACTIVE: "SET_ITEM_EDIT_ACTIVE",
-    ADD_LIST: "ADD_LIST"
+    ADD_LIST: "ADD_LIST",
+    CHANGE_ITEM_NAME: "CHANGE_ITEM_NAME"
 }
 
 // WE'LL NEED THIS TO PROCESS TRANSACTIONS
@@ -119,6 +121,16 @@ export const useGlobalStore = () => {
                     listMarkedForDeletion: null
                 });
             }
+            case GlobalStoreActionType.CHANGE_ITEM_NAME: {
+                return setStore({
+                    idNamePairs: store.idNamePairs,
+                    currentList: payload,
+                    newListCounter: store.newListCounter,
+                    isListNameEditActive: false,
+                    isItemEditActive: false,
+                    listMarkedForDeletion: null
+                });
+            }
             default:
                 return store;
         }
@@ -142,6 +154,7 @@ export const useGlobalStore = () => {
                 });
             }
             store.setCurrentList(newList._id);
+            //console.log(store.idNamePairs);
         }
         asyncAddList();
     }
@@ -181,8 +194,22 @@ export const useGlobalStore = () => {
         }
         asyncChangeListName(id);
     }
-    //store.changeItemName(){
-    //}
+
+    store.addChangeItemTransaction = function (id, newItem) {
+        let transaction = new ChangeItem_Transaction(store, id, store.currentList.items[id], newItem);
+        tps.addTransaction(transaction);
+    }
+    
+    store.changeItemName = function (id, newItem) {
+        console.log("id: "+id+" name: "+newItem);
+        let editedList = store.currentList;
+        editedList.items[id]=newItem;
+        api.updateTop5ListById(editedList._id, editedList);
+        storeReducer({
+            type: GlobalStoreActionType.CHANGE_ITEM_NAME,
+            payload: editedList
+        });    
+    }
 
     // THIS FUNCTION PROCESSES CLOSING THE CURRENTLY LOADED LIST
     store.closeCurrentList = function () {

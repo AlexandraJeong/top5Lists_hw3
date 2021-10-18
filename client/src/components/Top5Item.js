@@ -57,8 +57,8 @@ function Top5Item(props) {
     }
     function handleKeyPress(event) {
         if (event.code === "Enter") {
-            let id = event.target.id.substring("list-".length);
-            store.changeItemName(id, text);
+            let id = parseInt(event.target.id.substring("item-".length))-1;
+            store.addChangeItemTransaction(id, text);
             toggleEdit();
         }
     }
@@ -72,35 +72,38 @@ function Top5Item(props) {
     if (draggedTo) {
         itemClass = "top5-item-dragged-to";
     }
-    let itemElement = (
-        <div
-            id={'item-' + (index + 1)}
-            className={itemClass}
-            onDragStart={handleDragStart}
-            onDragOver={handleDragOver}
-            onDragEnter={handleDragEnter}
-            onDragLeave={handleDragLeave}
-            onDrop={handleDrop}
-            draggable="true"
-        >
-            <input
-                type="button"
-                id={"edit-item-" + index + 1}
-                className="item-edit-button"
-                value={"\u270E"}
-                onClick={handleToggleEdit}
-            />
-            { props.text }
-        </div >)
+    let itemElement = null;
     if (editActive) {
-        itemElement =
+        itemElement =(
             <input
-                id={"item-" + index+1}
+                className={itemClass}
+                id={"item-" + (index+1)}
                 type='text'
                 onKeyPress={handleKeyPress}
                 onChange={handleUpdateText}
                 defaultValue={props.text}
-            />;
+            />);
+    }else{
+        itemElement = (
+            <div
+                id={'item-' + (index + 1)}
+                className={itemClass}
+                onDragStart={handleDragStart}
+                onDragOver={handleDragOver}
+                onDragEnter={handleDragEnter}
+                onDragLeave={handleDragLeave}
+                onDrop={handleDrop}
+                draggable="true"
+            >
+                <input
+                    type="button"
+                    id={"edit-item-" + (index + 1)}
+                    className="item-edit-button"
+                    value={"\u270E"}
+                    onClick={handleToggleEdit}
+                />
+                { props.text }
+            </div >);
     }
     return itemElement;
 }
