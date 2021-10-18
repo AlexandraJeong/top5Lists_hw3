@@ -15,6 +15,11 @@ function ListCard(props) {
     store.history = useHistory();
     const { idNamePair, selected } = props;
 
+    function handleDeleteClick(event){
+        event.stopPropagation();
+        store.markListForDeletion(idNamePair._id);
+
+    }
 
     function handleLoadList(event) {
         if (!event.target.disabled) {
@@ -78,6 +83,7 @@ function ListCard(props) {
                 type="button"
                 id={"delete-list-" + idNamePair._id}
                 className="list-card-button"
+                onClick = {handleDeleteClick}
                 value={"\u2715"}
             />
             <input

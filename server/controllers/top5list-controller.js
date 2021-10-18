@@ -82,11 +82,9 @@ deleteTop5List = async (req, res) => {
         if (err) {
             return res.status(400).json({ success: false, error: err })
         }
-
+        console.log(top5List);
         if (!top5List) {
-            return res
-                .status(404)
-                .json({ success: false, error: `Top 5 List not found` })
+          
         }
 
         return res.status(200).json({ success: true, data: top5List })
@@ -120,9 +118,7 @@ getTop5ListPairs = async (req, res) => {
             return res.status(400).json({ success: false, error: err})
         }
         if (!top5Lists.length) {
-            return res
-                .status(404)
-                .json({ success: false, error: 'Top 5 Lists not found'})
+            return res.status(200).json({ success: true, idNamePairs: [] });
         }
         else {
             // PUT ALL THE LISTS INTO ID, NAME PAIRS
@@ -135,7 +131,7 @@ getTop5ListPairs = async (req, res) => {
                 };
                 pairs.push(pair);
             }
-            return res.status(200).json({ success: true, idNamePairs: pairs })
+            return res.status(200).json({ success: true, idNamePairs: pairs });
         }
     }).catch(err => console.log(err))
 }
