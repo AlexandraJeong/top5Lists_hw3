@@ -23,7 +23,8 @@ export const GlobalStoreActionType = {
     ADD_LIST: "ADD_LIST",
     CHANGE_ITEM_NAME: "CHANGE_ITEM_NAME",
     SET_LIST_FOR_DELETION: "SET_LIST_FOR_DELETION",
-    DONE_DELETING: "DONE_DELETING"
+    DONE_DELETING: "DONE_DELETING",
+    RERENDER:"RERENDER"
 }
 
 // WE'LL NEED THIS TO PROCESS TRANSACTIONS
@@ -153,6 +154,16 @@ export const useGlobalStore = () => {
                     listMarkedForDeletion: null
                 });
             }
+            case GlobalStoreActionType.RERENDER: {
+                return setStore({
+                    idNamePairs: store.idNamePairs,
+                    currentList: store.currentList,
+                    newListCounter: store.newListCounter,
+                    isListNameEditActive: store.isListNameEditActive,
+                    isItemEditActive: store.isItemEditActive,
+                    listMarkedForDeletion: store.listMarkedForDeletion
+                });
+            }
             default:
                 return store;
         }
@@ -277,6 +288,7 @@ export const useGlobalStore = () => {
 
     // THIS FUNCTION PROCESSES CLOSING THE CURRENTLY LOADED LIST
     store.closeCurrentList = function () {
+        tps.clearAllTransactions();
         storeReducer({
             type: GlobalStoreActionType.CLOSE_CURRENT_LIST,
             payload: {}
@@ -313,6 +325,8 @@ export const useGlobalStore = () => {
 
                 response = await api.updateTop5ListById(top5List._id, top5List);
                 if (response.data.success) {
+                    console.log("clearing");
+                    tps.clearAllTransactions();
                     storeReducer({
                         type: GlobalStoreActionType.SET_CURRENT_LIST,
                         payload: top5List
@@ -366,7 +380,12 @@ export const useGlobalStore = () => {
     store.redo = function () {
         tps.doTransaction();
     }
-
+    store.hasUndo= function(){
+        return tps.hasTransactionToUndo();
+    }
+    store.hasRedo= function(){
+        return tps.hasTransactionToRedo();
+    }
     // THIS FUNCTION ENABLES THE PROCESS OF EDITING A LIST NAME
     store.setIsListNameEditActive = function () {
         storeReducer({

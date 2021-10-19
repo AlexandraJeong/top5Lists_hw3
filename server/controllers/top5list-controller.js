@@ -84,7 +84,7 @@ deleteTop5List = async (req, res) => {
         }
         console.log(top5List);
         if (!top5List) {
-          
+          // THERE ARE NO ERRORS IN BA SING SE
         }
 
         return res.status(200).json({ success: true, data: top5List })
